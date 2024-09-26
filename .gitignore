@@ -1,4 +1,4 @@
 /.bundle
 /Gemfile.local
 .idea
-
+.DS_Store

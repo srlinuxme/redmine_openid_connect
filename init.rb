@@ -8,8 +8,8 @@ Redmine::Plugin.register :redmine_openid_connect do
   author 'Alfonso Juan Dillera / Markus M. May / Leandro Barbosa'
   description 'OpenID Connect implementation for Redmine'
   version '1.0.0'
-  url 'https://github.com/srlinuxme/redmine_openid_connect/tree/develop'
-  author_url 'https://srlinux.me'
+  url 'https://github.com/srlinuxme/redmine_openid_connect'
+  author_url 'https://github.com/srlinuxme'
 
   settings :default => { 'empty' => true }, partial: 'settings/redmine_openid_connect_settings'
 end

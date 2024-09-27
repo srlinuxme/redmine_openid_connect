@@ -28,7 +28,7 @@
       if (e.source !== opiframe) { return };    
 
       if (e.origin !== target_origin) { return alert('Wrong target origin: ' + target_origin); }
-      stat = e.data;  
+      stat = e.data;
 
       if (stat == "changed") {
         window.parent.location.href = reauthorize_url;

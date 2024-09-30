@@ -3,6 +3,7 @@
 ## 1.0.0
 * Fix wrong target origin warn with extentions like metamask
 * Fix problem with groups keycloak
+* Fix ERR_TOO_MANY_REDIRECTS, by clean up expired session
 
 ## 0.9.5
 * Pull server-side errors from locale files

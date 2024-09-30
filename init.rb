@@ -7,7 +7,7 @@ Redmine::Plugin.register :redmine_openid_connect do
   name 'Redmine Openid Connect plugin'
   author 'Alfonso Juan Dillera / Markus M. May / Leandro Barbosa'
   description 'OpenID Connect implementation for Redmine'
-  version '1.0.0'
+  version '1.0.1'
   url 'https://github.com/srlinuxme/redmine_openid_connect'
   author_url 'https://github.com/srlinuxme'
 

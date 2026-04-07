@@ -1,4 +1,8 @@
 # Changelog
+## 1.0.2
+* Fix parse_token Base64 error, by using JWT gem instead of manual parsing
+* Fix get_user_info! for response.body is a string, not a hash
+* user - uses parse_token to get user info, instead of get_user_info! which is not working with some providers like keycloak
 
 ## 1.0.1
 * Fix ERR_TOO_MANY_REDIRECTS, by clean up expired session

@@ -97,8 +97,12 @@ class OicSession < ActiveRecord::Base
   end
 
   def self.parse_token(token)
-    jwt = token.split('.')
-    return JSON::parse(Base64::decode64(jwt[1]))
+    jwt = token.to_s.split('.')
+    payload = jwt[1]
+    # JWTs use Base64URL encoding (RFC 4648) without padding.
+    # Add padding and use urlsafe decoder to handle `-` and `_` characters.
+    payload += '=' * ((4 - payload.length % 4) % 4)
+    return JSON::parse(Base64.urlsafe_decode64(payload))
   end
 
   def claims
@@ -117,9 +121,9 @@ class OicSession < ActiveRecord::Base
       headers: { "Authorization" => "Bearer #{access_token}" }
     )
 
-    if response.headers["content-type"] == 'application/jwt'
+    if response.headers["content-type"]&.include?('application/jwt')
       # signed / encrypted response, extract before using
-      return self.class.parse_token(response)
+      return self.class.parse_token(response.body)
     else
       # unsigned response, just return the bare json
       return JSON::parse(response.body)
@@ -175,9 +179,9 @@ class OicSession < ActiveRecord::Base
 
   def user
     if access_token? # keycloak way...
-      @user = JSON::parse(Base64::decode64(access_token.split('.')[1]))
+      @user = self.class.parse_token(access_token)
     else
-      @user = JSON::parse(Base64::decode64(id_token.split('.')[1]))
+      @user = self.class.parse_token(id_token)
     end
     return @user
   end

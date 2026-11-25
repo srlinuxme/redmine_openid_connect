@@ -1,0 +1,12 @@
+<%= error_messages_for 'application' %>
+<div class="box tabular">
+  <p><%= f.text_field :name, required: true, size: 60 %></p>
+  <p>
+    <%= f.text_area :redirect_uri, required: true, rows: 3, cols: 60, label: :label_oauth_redirect_uri %>
+    <em class="info"><%= l(:text_oauth_redirect_uri_help) %></em>
+  </p>
+  <p>
+    <%= f.check_box :confidential, label: :label_oauth_confidential %>
+    <em class="info"><%= l(:text_oauth_confidential_help) %></em>
+  </p>
+</div>

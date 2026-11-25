@@ -1,0 +1,35 @@
+<%= title l(:label_oauth_authorize_title) %>
+
+<div class="box">
+  <p><%= l(:text_oauth_authorize_prompt,
+           client: content_tag(:strong, @pre_auth.client.name),
+           user: content_tag(:strong, "#{User.current.name} (#{User.current.login})")).html_safe %></p>
+
+  <p><%= l(:text_oauth_authorize_able_to) %></p>
+  <ul>
+    <li><%= l(:text_oauth_scope_identity) %></li>
+    <li><%= l(:text_oauth_scope_api) %></li>
+  </ul>
+
+  <p><%= l(:text_oauth_authorize_not_able_to) %></p>
+  <ul>
+    <li><%= l(:text_oauth_scope_no_admin) %></li>
+    <li><%= l(:text_oauth_scope_no_account) %></li>
+  </ul>
+
+  <p><em class="info"><%= l(:text_oauth_authorize_revoke_hint) %></em></p>
+</div>
+
+
+<div class="oauth-actions">
+  <%= form_tag oauth_authorization_path, method: :post, style: 'display:inline' do %>
+    <%= render partial: 'doorkeeper/authorizations/hidden_fields' %>
+    <%= submit_tag l(:label_oauth_authorize_button) %>
+  <% end %>
+  <%= form_tag oauth_authorization_path, method: :delete, style: 'display:inline' do %>
+    <%= render partial: 'doorkeeper/authorizations/hidden_fields' %>
+    <%= submit_tag l(:label_oauth_deny_button) %>
+  <% end %>
+</div>
+
+<% html_title l(:label_oauth_authorize_title) %>

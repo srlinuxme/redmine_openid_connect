@@ -13,8 +13,39 @@ en:
     dynamic_config_expiry: How often to retrieve openid configuration (default 1 day)
     create_user_if_not_exists: Create user if not exists
     disallowed_auth_sources_login: Users from the following auth sources will be required to login with SSO
+    oauth_provider_enabled: OAuth2 provider
+    oauth_provider_enabled_info: "Lets applications registered in Administration › OAuth applications access the REST API on behalf of a user, after the user approves it on a Redmine page. Requires the REST API."
+    oauth_provider_core: "Redmine 6.1+ has its own OAuth2 provider (Administration › Applications)."
   oic_logout_success: 'You have been logged out. <a href="%{value}">Click here to log in again</a>.'
   oic_cannot_create_user: "Could not create the user %{value}: "
   oic_try_another_account: "<a href='%{value}'>Try logging in with another account</a>"
   oic_cannot_login_user: "User %{value} could not login: Please login using the SSO option"
   button_login_sso: Login with SSO
+  label_oauth_application_plural: OAuth applications
+  label_oauth_application_new: New application
+  label_oauth_authorized_application_plural: Authorized applications
+  label_oauth_redirect_uri: Redirect URIs
+  label_oauth_confidential: Confidential (has a secret)
+  label_oauth_client_id: Client ID
+  label_oauth_secret: Client secret
+  label_oauth_authorize_title: Authorize access
+  label_oauth_authorize_button: Authorize
+  label_oauth_deny_button: Deny
+  label_oauth_revoke_button: Revoke
+  label_oauth_authorized_on: Authorized on
+  label_oauth_error_title: Authorization failed
+  label_oauth_code_title: Authorization code
+  text_oauth_redirect_uri_help: "One URI per line. Must be https (http only for localhost)."
+  text_oauth_confidential_help: "Uncheck only for apps that cannot keep a secret (browser or mobile apps): they will be required to use PKCE."
+  text_oauth_copy_secret_now: "Copy the secret to a safe place now, it will not be shown again."
+  text_oauth_secret_hashed: "Stored as a hash only. For a new secret, delete and register the application again."
+  text_oauth_authorize_prompt: "The application %{client} is requesting access to your Redmine account (%{user})."
+  text_oauth_authorize_able_to: "If you authorize it, it will be able to, on your behalf:"
+  text_oauth_scope_api: "view and change in Redmine everything you yourself can view and change (issues, notes, time entries, files), in the projects and with the permissions you have today"
+  text_oauth_scope_identity: "view your name, login and email address"
+  text_oauth_authorize_not_able_to: "It will never be able to:"
+  text_oauth_scope_no_admin: "administrate Redmine, even if you are an administrator"
+  text_oauth_scope_no_account: "change your account or read your API key"
+  text_oauth_authorize_revoke_hint: "You can revoke this access at any time in My account › Authorized applications."
+  text_oauth_revoke_confirm: "Revoke this application's access? It will stop working with your account until you authorize it again."
+  text_oauth_delete_confirm: "Delete the application? All access people granted to it will stop working."

@@ -64,22 +64,26 @@ module RedmineOpenidConnect
 
         # verify request state or reauthorize
         unless oic_session.state == params[:state]
-          flash[:error] = "Requête OpenID Connect invalide."
-          return redirect_to oic_local_logout
+          flash[:error] = l(:oic_invalid_request)
+          return redirect_to oic_local_logout_url
         end
 
         oic_session.update!(authorize_params)
 
-        # verify id token nonce or reauthorize
+        # get access token, ID token and user info from the provider
+        oic_session.get_access_token!
+
+        # verify the ID token (signature, issuer, audience, expiry and nonce)
         if oic_session.id_token.present?
-          unless oic_session.claims['nonce'] == oic_session.nonce
-            flash[:error] = "ID Token invalide."
-            return redirect_to oic_local_logout
+          begin
+            oic_session.verified_claims!
+          rescue JWT::DecodeError, OicSession::InvalidIdToken => e
+            logger.warn "OpenID Connect: rejected ID token (#{e.class}: #{e.message})"
+            flash[:error] = l(:oic_invalid_id_token)
+            return redirect_to oic_local_logout_url
           end
         end
 
-        # get access token and user info
-        oic_session.get_access_token!
         user_info = oic_session.get_user_info!
 
         # verify application authorization
@@ -126,7 +130,7 @@ module RedmineOpenidConnect
           user.assign_attributes attributes
 
           if user.save
-            user.update_attribute(:admin, oic_session.admin?)
+            user.update_attribute(:admin, oic_session.admin?) if OicSession.manage_admin?
             oic_session.user_id = user.id
             oic_session.save!
             # after user creation just show "My Page" don't redirect to remember
@@ -140,7 +144,7 @@ module RedmineOpenidConnect
             return invalid_credentials
           end
         else
-          user.update_attribute(:admin, oic_session.admin?)
+          user.update_attribute(:admin, oic_session.admin?) if OicSession.manage_admin?
           oic_session.user_id = user.id
           oic_session.save!
           # redirect back to initial URL
@@ -180,14 +184,12 @@ module RedmineOpenidConnect
       if params.respond_to?(:permit)
         params.permit(
           :code,
-          :id_token,
           :session_state,
         )
       else
         params.select do |k,v|
           [
             'code',
-            'id_token',
             'session_state',
           ].include?(k)
         end

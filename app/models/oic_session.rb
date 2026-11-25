@@ -1,4 +1,11 @@
+require 'jwt'
+
 class OicSession < ActiveRecord::Base
+  class InvalidIdToken < StandardError; end
+
+  # Signature algorithms accepted for the ID token ("none" never is).
+  ID_TOKEN_ALGORITHMS = %w[RS256 RS384 RS512 PS256 PS384 PS512 ES256 ES384 ES512 HS256 HS384 HS512].freeze
+
   before_create :randomize_state!
   before_create :randomize_nonce!
 
@@ -34,6 +41,19 @@ class OicSession < ActiveRecord::Base
     client_config['create_user_if_not_exists']
   end
 
+  # The Redmine admin flag follows the provider only when an admin group is
+  # configured; otherwise the plugin leaves it alone (before, every SSO login
+  # removed the admin flag when no admin group was set).
+  def self.manage_admin?
+    client_config['admin_group'].present?
+  end
+
+  # Options for every HTTP call to the provider. "Disable SSL validation"
+  # applies to these calls only, never to the rest of the process.
+  def self.http_options
+    { verify: !client_config['disable_ssl_validation'] }
+  end
+
   def self.disallowed_auth_sources_login
     client_config['disallowed_auth_sources_login'].to_a
   end
@@ -47,8 +67,7 @@ class OicSession < ActiveRecord::Base
     # The settings form stores this as a string ('9'); Rails 7+ cache needs a number.
     expiry = (client_config['dynamic_config_expiry'].presence || 86400).to_i
     Rails.cache.fetch("oic_session_dynamic_#{hash}", expires_in: expiry) do
-      HTTParty::Basement.default_options.update(verify: false) if client_config['disable_ssl_validation']
-      ActiveSupport::HashWithIndifferentAccess.new HTTParty.get(openid_configuration_url)
+      ActiveSupport::HashWithIndifferentAccess.new HTTParty.get(openid_configuration_url, http_options)
     end
   end
 
@@ -63,15 +82,16 @@ class OicSession < ActiveRecord::Base
   def self.get_token(query)
     uri = dynamic_config['token_endpoint']
 
-    HTTParty::Basement.default_options.update(verify: false) if client_config['disable_ssl_validation']
     # Encode the form ourselves: HTTParty 0.14 does not encode a Hash body on
     # Ruby 3.4+/4.0 and Keycloak rejects the request ("Missing form parameter:
     # grant_type").
     response = HTTParty.post(
       uri,
-      body: URI.encode_www_form(query.compact),
-      headers: { 'Content-Type' => 'application/x-www-form-urlencoded' },
-      basic_auth: {username: client_config['client_id'], password: client_config['client_secret'] }
+      http_options.merge(
+        body: URI.encode_www_form(query.compact),
+        headers: { 'Content-Type' => 'application/x-www-form-urlencoded' },
+        basic_auth: {username: client_config['client_id'], password: client_config['client_secret'] }
+      )
     )
   end
 
@@ -115,13 +135,58 @@ class OicSession < ActiveRecord::Base
     return @claims
   end
 
+  # The provider's signing keys (JWKS), cached for an hour; refetched once
+  # when the token is signed with an unknown key (key rotation).
+  def self.jwks(invalidate: false)
+    uri = dynamic_config['jwks_uri']
+    raise InvalidIdToken, 'the provider publishes no jwks_uri' if uri.blank?
+
+    cache_key = "oic_session_jwks_#{Digest::SHA1.hexdigest(uri)}"
+    Rails.cache.delete(cache_key) if invalidate
+    Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+      JSON.parse(HTTParty.get(uri, http_options).body).deep_symbolize_keys
+    end
+  end
+
+  # Decodes the ID token checking its signature (provider JWKS, or the client
+  # secret for HS*), issuer, audience, expiry and nonce. Raises
+  # JWT::DecodeError or InvalidIdToken.
+  def self.verify_id_token(token, nonce)
+    _payload, header = JWT.decode(token, nil, false)
+    algorithm = header['alg'].to_s
+    supported = Array(dynamic_config['id_token_signing_alg_values_supported'])
+    allowed = supported.any? ? (ID_TOKEN_ALGORITHMS & supported) : ID_TOKEN_ALGORITHMS
+    raise InvalidIdToken, "algorithm #{algorithm.inspect} not allowed" unless allowed.include?(algorithm)
+
+    options = {
+      algorithms: [algorithm],
+      iss: dynamic_config['issuer'], verify_iss: dynamic_config['issuer'].present?,
+      aud: client_config['client_id'], verify_aud: true,
+      verify_expiration: true, leeway: 60
+    }
+    claims, _header =
+      if algorithm.start_with?('HS')
+        JWT.decode(token, client_config['client_secret'].to_s, true, options)
+      else
+        loader = ->(opts) { jwks(invalidate: opts[:invalidate] || opts[:kid_not_found]) }
+        JWT.decode(token, nil, true, options.merge(jwks: loader))
+      end
+
+    raise InvalidIdToken, 'nonce mismatch' unless nonce.present? && claims['nonce'] == nonce
+
+    claims
+  end
+
+  def verified_claims!
+    @claims = self.class.verify_id_token(id_token, nonce)
+  end
+
   def get_user_info!
     uri = dynamic_config['userinfo_endpoint']
 
-    HTTParty::Basement.default_options.update(verify: false) if client_config['disable_ssl_validation']
     response = HTTParty.get(
       uri,
-      headers: { "Authorization" => "Bearer #{access_token}" }
+      self.class.http_options.merge(headers: { "Authorization" => "Bearer #{access_token}" })
     )
 
     if response.headers["content-type"]&.include?('application/jwt')

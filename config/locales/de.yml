@@ -48,3 +48,5 @@ de:
   text_oauth_authorize_revoke_hint: "Sie können diesen Zugriff jederzeit unter Mein Konto › Autorisierte Anwendungen widerrufen."
   text_oauth_revoke_confirm: "Den Zugriff dieser Anwendung widerrufen? Sie funktioniert mit Ihrem Konto erst wieder, wenn Sie erneut zustimmen."
   text_oauth_delete_confirm: "Anwendung löschen? Alle Zugriffe, die Benutzer ihr gewährt haben, werden ungültig."
+  oic_invalid_request: "Ungültige OpenID-Connect-Anfrage. Bitte melden Sie sich erneut an."
+  oic_invalid_id_token: "Das ID-Token des OpenID-Connect-Anbieters ist ungültig. Bitte melden Sie sich erneut an."

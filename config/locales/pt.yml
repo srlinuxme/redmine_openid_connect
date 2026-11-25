@@ -49,3 +49,5 @@ pt:
   text_oauth_authorize_revoke_hint: "Você pode revogar este acesso quando quiser em Minha conta › Aplicativos autorizados."
   text_oauth_revoke_confirm: "Revogar o acesso deste aplicativo? Ele deixa de funcionar com a sua conta até você autorizar de novo."
   text_oauth_delete_confirm: "Apagar o aplicativo? Todos os acessos que as pessoas deram a ele deixam de valer."
+  oic_invalid_request: "Requisição OpenID Connect inválida. Entre novamente."
+  oic_invalid_id_token: "O ID token do provedor OpenID Connect é inválido. Entre novamente."

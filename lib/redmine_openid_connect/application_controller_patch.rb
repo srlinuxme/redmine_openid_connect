@@ -1,6 +1,9 @@
 module RedmineOpenidConnect
   module ApplicationControllerPatch
     def require_login
+      # API requests (json/xml, API key, Basic or OAuth Bearer) get the core 401,
+      # never a redirect to the OpenID provider: API clients don't follow login pages.
+      return super if api_request?
 
       if !User.current.logged? && OicSession.enabled?
         if request.get?

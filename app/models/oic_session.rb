@@ -1,6 +1,4 @@
 class OicSession < ActiveRecord::Base
-  unloadable
-
   before_create :randomize_state!
   before_create :randomize_nonce!
 
@@ -46,7 +44,8 @@ class OicSession < ActiveRecord::Base
 
   def self.get_dynamic_config
     hash = Digest::SHA1.hexdigest client_config.to_json
-    expiry = client_config['dynamic_config_expiry'] || 86400
+    # The settings form stores this as a string ('9'); Rails 7+ cache needs a number.
+    expiry = (client_config['dynamic_config_expiry'].presence || 86400).to_i
     Rails.cache.fetch("oic_session_dynamic_#{hash}", expires_in: expiry) do
       HTTParty::Basement.default_options.update(verify: false) if client_config['disable_ssl_validation']
       ActiveSupport::HashWithIndifferentAccess.new HTTParty.get(openid_configuration_url)
@@ -65,9 +64,13 @@ class OicSession < ActiveRecord::Base
     uri = dynamic_config['token_endpoint']
 
     HTTParty::Basement.default_options.update(verify: false) if client_config['disable_ssl_validation']
+    # Encode the form ourselves: HTTParty 0.14 does not encode a Hash body on
+    # Ruby 3.4+/4.0 and Keycloak rejects the request ("Missing form parameter:
+    # grant_type").
     response = HTTParty.post(
       uri,
-      body: query,
+      body: URI.encode_www_form(query.compact),
+      headers: { 'Content-Type' => 'application/x-www-form-urlencoded' },
       basic_auth: {username: client_config['client_id'], password: client_config['client_secret'] }
     )
   end

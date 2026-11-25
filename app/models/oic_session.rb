@@ -169,7 +169,8 @@ class OicSession < ActiveRecord::Base
         JWT.decode(token, client_config['client_secret'].to_s, true, options)
       else
         loader = ->(opts) { jwks(invalidate: opts[:invalidate] || opts[:kid_not_found]) }
-        JWT.decode(token, nil, true, options.merge(jwks: loader))
+        # allow_nil_kid: providers with a single signing key may omit "kid".
+        JWT.decode(token, nil, true, options.merge(jwks: loader, allow_nil_kid: true))
       end
 
     raise InvalidIdToken, 'nonce mismatch' unless nonce.present? && claims['nonce'] == nonce

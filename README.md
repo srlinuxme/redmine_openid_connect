@@ -45,6 +45,9 @@ Just include `username` in the scope being sent and replied to the client app.
    * **`family_name`**: `String` with the user's surname (required for user creation)
    * **`name`**: `String` with the user's full name (used as a fallback for first name and surname)
    * Should some of these fields be missing, try finding *Lambda* functions or *Generators* that allow you to customize the JWT Tokens issued
+3. The ID token must be signed with a key published in the provider's `jwks_uri` (RS/PS/ES algorithms) or with the client secret (HS algorithms). The plugin checks its signature, issuer, audience (`client_id`), expiry and nonce, and refuses the login otherwise.
+
+**Admins group:** when set, the Redmine administrator flag follows that group on every SSO login. When blank, the plugin does not touch the flag.
 
 ## Optional: OAuth2 provider (Redmine 4.2 – 6.0) ##
 

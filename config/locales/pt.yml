@@ -13,8 +13,39 @@ pt:
     dynamic_config_expiry: "Com que frequência obter configuração do openid (padrão 1 dia)"
     create_user_if_not_exists: "Criar utilizador caso não exista"
     disallowed_auth_sources_login: "Utilizadores das fontes selecionadas deverão fazer login SSO"
+    oauth_provider_enabled: Provedor OAuth2
+    oauth_provider_enabled_info: "Permite que aplicativos cadastrados em Administração › Aplicativos OAuth acessem a API REST em nome de uma pessoa, depois que ela autoriza numa tela do Redmine. Exige a API REST ligada."
+    oauth_provider_core: "O Redmine 6.1+ tem um provedor OAuth2 próprio (Administração › Aplicações)."
   oic_logout_success: 'Saiu com sucesso. <a href="%{value}">Clique aqui para voltar a entrar</a>.'
   oic_cannot_create_user: "Não foi possível criar o utilizador %{value}: "
   oic_try_another_account: "<a href='%{value}'>Tente entrar com uma conta diferente</a>"
   oic_cannot_login_user: "Não foi possível autenticar o utilizador %{value}: Por favor use o login SSO"
   button_login_sso: Entrar com SSO
+  label_oauth_application_plural: Aplicativos OAuth
+  label_oauth_application_new: Novo aplicativo
+  label_oauth_authorized_application_plural: Aplicativos autorizados
+  label_oauth_redirect_uri: URLs de retorno
+  label_oauth_confidential: Confidencial (tem segredo)
+  label_oauth_client_id: ID do cliente (client_id)
+  label_oauth_secret: Segredo (client_secret)
+  label_oauth_authorize_title: Autorizar acesso
+  label_oauth_authorize_button: Autorizar
+  label_oauth_deny_button: Recusar
+  label_oauth_revoke_button: Revogar
+  label_oauth_authorized_on: Autorizado em
+  label_oauth_error_title: Não foi possível autorizar
+  label_oauth_code_title: Código de autorização
+  text_oauth_redirect_uri_help: "Uma URL por linha. Precisa ser https (http só para localhost)."
+  text_oauth_confidential_help: "Desmarque só para aplicativos que não guardam segredo (app no navegador ou no celular): eles passam a ser obrigados a usar PKCE."
+  text_oauth_copy_secret_now: "Copie o segredo agora e guarde em lugar seguro: ele não será mostrado de novo."
+  text_oauth_secret_hashed: "Guardado só como hash. Para um segredo novo, apague e cadastre o aplicativo outra vez."
+  text_oauth_authorize_prompt: "O aplicativo %{client} está pedindo acesso à sua conta do Redmine (%{user})."
+  text_oauth_authorize_able_to: "Se você autorizar, ele poderá, em seu nome:"
+  text_oauth_scope_api: "ver e alterar pelo Redmine tudo o que você mesmo pode ver e alterar (tarefas, comentários, horas, arquivos), nos projetos e com as permissões que você tem hoje"
+  text_oauth_scope_identity: "ver seu nome, login e e-mail"
+  text_oauth_authorize_not_able_to: "Ele nunca poderá:"
+  text_oauth_scope_no_admin: "administrar o Redmine, mesmo que você seja administrador"
+  text_oauth_scope_no_account: "alterar sua conta ou ver sua chave de API"
+  text_oauth_authorize_revoke_hint: "Você pode revogar este acesso quando quiser em Minha conta › Aplicativos autorizados."
+  text_oauth_revoke_confirm: "Revogar o acesso deste aplicativo? Ele deixa de funcionar com a sua conta até você autorizar de novo."
+  text_oauth_delete_confirm: "Apagar o aplicativo? Todos os acessos que as pessoas deram a ele deixam de valer."

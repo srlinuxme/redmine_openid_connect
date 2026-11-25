@@ -46,6 +46,36 @@ Just include `username` in the scope being sent and replied to the client app.
    * **`name`**: `String` with the user's full name (used as a fallback for first name and surname)
    * Should some of these fields be missing, try finding *Lambda* functions or *Generators* that allow you to customize the JWT Tokens issued
 
+## Optional: OAuth2 provider (Redmine 4.2 – 6.0) ##
+
+Besides signing users in, the plugin can make Redmine an **OAuth2 provider**, so other applications can use the REST API **on behalf of a user without asking for their API key**. The user approves the access on a Redmine page; Redmine 6.1 has the same feature in core ([#24808](https://www.redmine.org/issues/24808)), and on 6.1+ this part of the plugin turns itself off.
+
+1. Enable the REST API (*Administration › Settings › API*).
+2. Run `bundle install` and `bundle exec rake redmine:plugins:migrate RAILS_ENV=production` (adds the `oauth_*` tables), restart.
+3. Check **OAuth2 provider** in the plugin settings.
+4. Register the application in *Administration › OAuth applications* (name, redirect URIs). The secret is shown only once.
+
+Flow: Authorization Code with PKCE and refresh tokens.
+
+| Method | Path | |
+|---|---|---|
+| GET | `/oauth/authorize` | consent page (`response_type=code`, `client_id`, `redirect_uri`, `state`, `code_challenge`, `code_challenge_method=S256`) |
+| POST | `/oauth/token` | `authorization_code` (with `code_verifier`) or `refresh_token` |
+| POST | `/oauth/revoke` | revokes a token |
+| GET | `/oauth/authorized_applications` | the user reviews and revokes access (also linked from *My account*) |
+
+The application then calls the API with `Authorization: Bearer <access_token>`. Access tokens last 2 hours; tokens are only accepted in the header, never in the URL.
+
+What a token can do: whatever the user can do through the API with their own API key, in their projects and with their roles. What it can't: administrate Redmine (`admin?` is false for OAuth requests, even for administrators, so `X-Redmine-Switch-User` is ignored), change the user's account (`PUT /my/account`) or read the API key. Unlike Redmine 6.1 there are no per-permission scopes: there is a single scope, `api`.
+
+While the option is unchecked every `/oauth/*` endpoint answers 404 and `Bearer` headers are ignored.
+
+Before upgrading to Redmine 6.1+, roll the tables back and register the applications again in the core screen:
+
+```
+bundle exec rake redmine:plugins:migrate NAME=redmine_openid_connect VERSION=1 RAILS_ENV=production
+```
+
 ## In Case Your OpenID Provider Is Offline ##
 
 If you enable the OpenId Connect plugin and your OpenId Connect Server is not reachable, but you still would like to login, you can use an additional parameter, to be able to login directly into redmine: 

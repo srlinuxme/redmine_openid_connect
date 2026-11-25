@@ -1,0 +1,6 @@
+<h2><%= l(:label_oauth_error_title) %></h2>
+
+<p id="errorExplanation"><%= @pre_auth.error_response.body[:error_description] %></p>
+<p><a href="javascript:history.back()"><%= l(:button_back) %></a></p>
+
+<% html_title l(:label_oauth_error_title) %>

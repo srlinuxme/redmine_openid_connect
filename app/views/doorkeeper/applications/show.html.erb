@@ -1,0 +1,29 @@
+<div class="contextual">
+  <%= link_to l(:button_edit), edit_oauth_application_path(@application), class: 'icon icon-edit' %>
+  <%= link_to l(:button_delete), oauth_application_path(@application),
+              data: { confirm: l(:text_oauth_delete_confirm) }, method: :delete, class: 'icon icon-del' %>
+</div>
+
+<%= title [l(:label_oauth_application_plural), oauth_applications_path], @application.name %>
+
+<div class="box">
+  <p><strong><%= l(:label_oauth_client_id) %>:</strong> <code><%= @application.uid %></code></p>
+  <% secret = flash[:application_secret].presence || @application.plaintext_secret %>
+  <% flash.delete :application_secret %>
+  <p><strong><%= l(:label_oauth_secret) %>:</strong>
+    <% if secret.present? %>
+      <code><%= secret %></code><br>
+      <% if Doorkeeper.config.application_secret_hashed? %><strong class="warning"><%= l(:text_oauth_copy_secret_now) %></strong><% end %>
+    <% else %>
+      <em><%= l(:text_oauth_secret_hashed) %></em>
+    <% end %>
+  </p>
+  <p><strong><%= l(:label_oauth_confidential) %>:</strong> <%= format_object(@application.confidential?) %></p>
+</div>
+
+<h3><%= l(:label_oauth_redirect_uri) %></h3>
+<ul>
+  <% @application.redirect_uri.split.each do |uri| %>
+    <li><code><%= uri %></code></li>
+  <% end %>
+</ul>

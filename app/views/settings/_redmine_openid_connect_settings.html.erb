@@ -56,6 +56,16 @@
 </p>
 
 <p>
+  <label><%= t('config.oauth_provider_enabled') %></label>
+  <% if RedmineOpenidConnect::OauthProvider.core_provider? %>
+    <em class="info"><%= t('config.oauth_provider_core') %></em>
+  <% else %>
+    <%= check_box_tag 'settings[oauth_provider_enabled]', '1', %w[1 true].include?(@settings['oauth_provider_enabled'].to_s) %>
+    <em class="info"><%= t('config.oauth_provider_enabled_info') %></em>
+  <% end %>
+</p>
+
+<p>
   <label><%= t('config.disallowed_auth_sources_login') %></label>
   <%= select_tag 'settings[disallowed_auth_sources_login]', options_for_select(AuthSource.all.map { |a| [a.name, a.id] }, OicSession.disallowed_auth_sources_login), :multiple => true, :include_blank => true, :size => 5 %>
 </p>

@@ -1,0 +1,34 @@
+<div class="contextual">
+  <%= link_to l(:label_oauth_application_new), new_oauth_application_path, class: 'icon icon-add' %>
+</div>
+
+<%= title l(:label_oauth_application_plural) %>
+
+<% if @applications.any? %>
+<div class="autoscroll">
+<table class="list">
+  <thead><tr>
+    <th><%= l(:field_name) %></th>
+    <th><%= l(:label_oauth_redirect_uri) %></th>
+    <th><%= l(:label_oauth_confidential) %></th>
+    <th></th>
+  </tr></thead>
+  <tbody>
+  <% @applications.each do |application| %>
+    <tr id="application_<%= application.id %>" class="<%= cycle('odd', 'even') %>">
+      <td class="name"><%= link_to application.name, oauth_application_path(application) %></td>
+      <td class="description"><%= truncate application.redirect_uri.split.join(', '), length: 80 %></td>
+      <td><%= checked_image application.confidential? %></td>
+      <td class="buttons">
+        <%= link_to l(:button_edit), edit_oauth_application_path(application), class: 'icon icon-edit' %>
+        <%= link_to l(:button_delete), oauth_application_path(application),
+                    data: { confirm: l(:text_oauth_delete_confirm) }, method: :delete, class: 'icon icon-del' %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+</div>
+<% else %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

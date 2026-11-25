@@ -35,6 +35,14 @@ module RedmineOpenidConnect
     rescue ActiveRecord::RecordNotFound => e
     end
 
+    # "Authorized applications" link on My account (OAuth provider).
+    def view_my_account_contextual(context={})
+      return '' unless RedmineOpenidConnect::OauthProvider.enabled?
+      link_to(l(:label_oauth_authorized_application_plural),
+              oauth_authorized_applications_path,
+              class: 'icon icon-server-authentication')
+    end
+
     def view_layouts_base_html_head(context={})
       stylesheet_link_tag(:redmine_openid_connect, :plugin => 'redmine_openid_connect')
     end

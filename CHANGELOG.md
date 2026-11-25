@@ -1,4 +1,7 @@
 # Changelog
+## Unreleased
+* Optional OAuth2 provider (Doorkeeper): applications use the REST API on behalf of a user after the user approves it on a Redmine page. Off by default; off on Redmine 6.1+, which has it in core
+
 ## 1.0.2
 * Fix parse_token Base64 error, by using JWT gem instead of manual parsing
 * Fix get_user_info! for response.body is a string, not a hash

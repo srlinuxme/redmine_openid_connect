@@ -1,10 +1,15 @@
 # Changelog
-## Unreleased
+## 1.1.0
+* Redmine 6.x / 7.x support (Rails 7/8, Ruby 3.4/4.0): numeric cache expiry, form-encoded token request, API requests get a 401 instead of a redirect to the provider
 * Optional OAuth2 provider (Doorkeeper): applications use the REST API on behalf of a user after the user approves it on a Redmine page. Off by default; off on Redmine 6.1+, which has it in core
 * Security: verify the ID token signature (provider JWKS, or the client secret for HS*), issuer, audience, expiry and nonce; the ID token now only comes from the token endpoint, never from the browser redirect
 * Security: "Disable SSL validation" applies to the plugin's own calls only (it used to turn off TLS verification for every HTTParty call in the process)
 * Fix: the Redmine admin flag is only synchronised when an admin group is configured (every SSO login used to remove it when the setting was blank)
 * Fix: invalid state / ID token redirected to a method call instead of the logout page
+* Fix: ID tokens without a `kid` header are accepted when the provider publishes a single signing key
+* Fix: pt-BR translations for the invalid request / ID token messages
+
+Upgrade: run `bundle install` (new gems `jwt` and `doorkeeper`; doorkeeper needs Ruby 2.7+) and `bundle exec rake redmine:plugins:migrate RAILS_ENV=production`, then restart.
 
 ## 1.0.2
 * Fix parse_token Base64 error, by using JWT gem instead of manual parsing
